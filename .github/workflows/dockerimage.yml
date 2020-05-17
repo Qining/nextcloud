@@ -11,9 +11,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./nextcloud
+    
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      working-directory: ./nextcloud
+      run: docker build . --tag nextcloud:$(date +%s)
