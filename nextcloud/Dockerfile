@@ -76,5 +76,8 @@ RUN chmod +x /wrapper.sh
 RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 RUN chmod a+rx /usr/local/bin/youtube-dl
 
+# Set ram limit to 1G
+RUN echo "memory_limit=1G" > /usr/local/etc/php/conf.d/memory-limit.ini
+
 CMD ["/bin/bash", "-c", "/wrapper.sh"]
 # CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
