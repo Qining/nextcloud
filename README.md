@@ -66,3 +66,26 @@ Indices and Provider
 - 13: MSOffice2007
 - 14: SVG
 - 15: Font
+
+## Pre-Generate Preview
+It is also important to pre-generate previews for all existing data. Otherwise when using
+apps like *Photos*, IO congestion can happen due to large amount of preview generation
+tasks running at the same time.
+
+1. Install this app: https://apps.nextcloud.com/apps/previewgenerator
+1. Run the pre-generate command: `docker exec --user www-data <nextcloud_container_name> occ php preview:generate-all -vvv`.
+Note this may run a long time, depends on how many existing files are there.
+1. Schdule preview generation timer (below)
+
+[The official document](https://nextcloud.com/blog/setup-cron-or-systemd-timers-for-the-nextcloud-preview-generator/).
+Note the official document is not designed for NextCloud on *docker* specifically.
+
+Add Scheduled Preview Generation Task:
+```shell
+# login to the shell of nextcloud container
+docker exec -it <nextcloud_container_name> bash
+# use the 'crontab' in the busybox, with user: www-data
+busybox crontab -e -u www-data
+# In the opened file, add (assume the scheduled time is 4AM):
+0 4 * * * php occ preview:pre-generate
+```
