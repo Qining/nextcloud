@@ -28,6 +28,17 @@ This problem can be solved by (on NextCloud 18.04):
 It seems like it is just a bug in the **ocDownloader** that the default path is working properly, users need to
 set the path at least once to make it work.
 
+## Set Session Lifetime
+```shell
+# Disable keep-alive
+docker exec --user www-data <nextcloud_app_container_name> php occ config:system:set \
+  session_keepalive --value=false --type=bool
+
+# 10 Minute Lifetime
+docker exec --user www-data <nextcloud_app_container_name> php occ config:system:set \
+  session_lifetime --value=600 --type=integer
+```
+
 ## Enable Preview Generation
 ```shell
 # Explicitly enable preview
