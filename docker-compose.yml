@@ -12,6 +12,10 @@ services:
     env_file:
       - .env
 
+  redis:
+    image: redis:alpine
+    restart: always
+
   nextcloud:
     build: ./nextcloud
     restart: always
@@ -25,11 +29,13 @@ services:
       - LETSENCRYPT_HOST=${MY_NEXTCLOUD_LETSENCRYPT_HOST}
       - LETSENCRYPT_EMAIL=${MY_NEXTCLOUD_LETSENCRYPT_EMAIL}
       - MYSQL_HOST=db
+      - REDIS_HOST=redis
     env_file:
       - .env
     depends_on:
       - db
       - letsencrypt-companion
+      - redis
     networks:
       - proxy-tier
       - default
