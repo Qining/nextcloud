@@ -80,7 +80,7 @@ Note this may run a long time, depends on how many existing files are there.
 [The official document](https://nextcloud.com/blog/setup-cron-or-systemd-timers-for-the-nextcloud-preview-generator/).
 Note the official document is not designed for NextCloud on *docker* specifically.
 
-Add Scheduled Preview Generation Task:
+## Add Scheduled Preview Generation Task:
 ```shell
 # login to the shell of nextcloud container
 docker exec -it <nextcloud_container_name> bash

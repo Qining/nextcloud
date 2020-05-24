@@ -1,4 +1,5 @@
 FROM nextcloud:18.0-apache
+# FROM nextcloud:fpm
 
 RUN set -ex; \
     \
@@ -58,7 +59,7 @@ ENV NEXTCLOUD_UPDATE=1
 
 # Install and config aria2
 RUN apt-get update && \
-    apt-get install -y aria2 wget sudo && \
+    apt-get install -y aria2 wget sudo fatrace && \
     rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /var/log/aria2c && \
@@ -77,7 +78,28 @@ RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/yout
 RUN chmod a+rx /usr/local/bin/youtube-dl
 
 # Set ram limit to 1G
-RUN echo "memory_limit=1G" > /usr/local/etc/php/conf.d/memory-limit.ini
+RUN echo "memory_limit=2G" > /usr/local/etc/php/conf.d/memory-limit.ini
+RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
+# Set a smaller number of workers for Apache2
+# Not necessary for fpm-php image
+RUN mv /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-available/mpm_prefork.conf.orig
+COPY etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-available/mpm_prefork.conf
+
+
+# Not necessary for fpm-php image
 CMD ["/bin/bash", "-c", "/wrapper.sh"]
-# CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
+# # CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
+
+
+# For fpm-php image (not working)
+# RUN su www-data aria2c --enable-rpc --rpc-allow-origin-all -c -D \
+  # --log=/var/log/aria2c/aria2c.log \
+  # --check-certificate=false \
+  # --save-session=/var/local/aria2c/aria2c.sess \
+  # --save-session-interval=2 \
+  # --continue=true \
+  # --input-file=/var/local/aria2c/aria2c.sess \
+  # --rpc-save-upload-metadata=true \
+  # --force-save=true\
+  # --log-level=warn
