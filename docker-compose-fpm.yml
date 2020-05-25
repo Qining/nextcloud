@@ -17,7 +17,9 @@ services:
     restart: always
 
   nextcloud:
-    build: ./nextcloud
+    build:
+      context: ./nextcloud
+      dockerfile: Dockerfile-fpm
     restart: always
     volumes:
       - ${LOCAL_NEXTCLOUD_DATA_DIR}:/var/www/html
@@ -27,9 +29,6 @@ services:
       - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS}
       - MYSQL_HOST=db
       - REDIS_HOST=redis
-      - VIRTUAL_HOST=${MY_NEXTCLOUD_VIRTUAL_HOST}
-      - LETSENCRYPT_HOST=${MY_NEXTCLOUD_LETSENCRYPT_HOST}
-      - LETSENCRYPT_EMAIL=${MY_NEXTCLOUD_LETSENCRYPT_EMAIL}
     env_file:
       - .env
     depends_on:
@@ -41,6 +40,33 @@ services:
       - default
     # To use 'fatrace' to trace IO traffic (debug)
     privileged: true
+
+  web:
+    build: ./web
+    restart: always
+    volumes:
+      - ${LOCAL_NEXTCLOUD_DATA_DIR}:/var/www/html:ro
+    environment:
+      - VIRTUAL_HOST=${MY_NEXTCLOUD_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${MY_NEXTCLOUD_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${MY_NEXTCLOUD_LETSENCRYPT_EMAIL}
+    depends_on:
+      - nextcloud
+    networks:
+      - proxy-tier
+      - default
+
+  cron:
+    image: nextcloud:18.0.4-fpm
+    restart: always
+    volumes:
+      - ${LOCAL_NEXTCLOUD_DATA_DIR}:/var/www/html
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - letsencrypt-companion
+      - redis
+      - nextcloud
 
   proxy:
     build: ./proxy

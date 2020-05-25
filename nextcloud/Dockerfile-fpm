@@ -1,4 +1,4 @@
-FROM nextcloud:18.0-apache
+FROM nextcloud:18.0.4-fpm
 
 RUN set -ex; \
     \
@@ -69,8 +69,8 @@ RUN mkdir -p /var/log/aria2c && \
     chmod 770 -R /var/log/aria2c /var/local/aria2c
 
 # aria2 will be started in the wrapper, then the real server
-COPY wrapper.sh /
-RUN chmod +x /wrapper.sh
+COPY wrapper-fpm.sh /
+RUN chmod +x /wrapper-fpm.sh
 
 # youtube-dl
 RUN curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
@@ -81,9 +81,4 @@ RUN echo "memory_limit=2G" > /usr/local/etc/php/conf.d/memory-limit.ini
 # Use the production php.ini
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
-# Set a much smaller number of workers for Apache2
-RUN mv /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-available/mpm_prefork.conf.orig
-COPY etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-available/mpm_prefork.conf
-
-
-CMD ["/bin/bash", "-c", "/wrapper.sh"]
+CMD ["/bin/bash", "-c", "/wrapper-fpm.sh"]
